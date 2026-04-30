@@ -6,6 +6,12 @@
 
 # Ignorar archivos temporales de Python/Databricks
 __pycache__/
+*.egg-info
+scratch/**
+!scratch/README.md
+.venv*/
 *.pyc
 .databricks/
 .bundle/
+build/
+dist/

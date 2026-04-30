@@ -24,6 +24,11 @@ resources:
             data_security_mode: "SINGLE_USER" # Requerido para Unity Catalog
       
       tasks:
+        - task_key: "00_download_source_data"
+          job_cluster_key: "etl_cluster"
+          spark_python_task:
+            python_file: "../src/pipelines/00_download_data.py"
+
         - task_key: "01_raw_ingestion"
           job_cluster_key: "etl_cluster"
           spark_python_task:
@@ -55,6 +60,6 @@ targets:
   prod:
     mode: production
     workspace:
-      host: <TU_URL_DE_WORKSPACE_PROD>
-    run_as:
-      service_principal_name: <TU_CLIENT_ID_DEL_SERVICE_PRINCIPAL>
+      host: https://adb-7405609969491054.14.azuredatabricks.net
+    variables:
+      catalog_name: nyc_taxi_ivangalindo_prod
