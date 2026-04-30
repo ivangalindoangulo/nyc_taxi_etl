@@ -15,15 +15,17 @@ resources:
     nyc_taxi_pipeline:
       name: "[${bundle.target}] Pipeline Medallion NYC Taxi"
       
-      email_notifications:
-        on_failure: [ "${workspace.current_user.userName}" ] 
       
       job_clusters:
         - job_cluster_key: "etl_cluster"
           new_cluster:
             spark_version: "13.3.x-scala2.12"
-            node_type_id: "Standard_D4s_v3"
-            num_workers: 1
+            node_type_id: "Standard_DS3_v2" 
+            spark_conf:
+              "spark.databricks.cluster.profile": "singleNode"
+              "spark.master": "local[*]"
+            custom_tags:
+              "ResourceClass": "SingleNode"
             data_security_mode: "SINGLE_USER"
 
       tasks:
