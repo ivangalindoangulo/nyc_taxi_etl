@@ -23,9 +23,9 @@ def download_files():
         print(f"Descargando {name} desde {url}...")
         try:
             urllib.request.urlretrieve(url, full_dest)
-            print(f"✅ Éxito: Guardado en {full_dest}")
+            print(f"Éxito: Guardado en {full_dest}")
         except Exception as e:
-            print(f"❌ Error descargando {name}: {str(e)}")
+            print(f"Error: descarga {name}: {str(e)}")
             raise e
 
 if __name__ == "__main__":
