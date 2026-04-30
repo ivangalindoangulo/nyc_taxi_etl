@@ -1,0 +1,11 @@
+# Ignorar binarios y descargas de Terraform
+.terraform/
+*.tfstate
+*.tfstate.backup
+.terraform.lock.hcl
+
+# Ignorar archivos temporales de Python/Databricks
+__pycache__/
+*.pyc
+.databricks/
+.bundle/
