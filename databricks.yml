@@ -1,10 +1,9 @@
-# yaml-language-server: $schema=https://raw.githubusercontent.com/databricks/cli/main/schemas/bundle.schema.json
 bundle:
   name: nyc_taxi_etl
 
 variables:
   catalog_name:
-    description: "Nombre del catálogo en Unity Catalog"
+    description: "Catálogo de Unity Catalog"
     default: "nyc_taxi_ivangalindo"
 
 workspace:
@@ -14,7 +13,6 @@ resources:
   jobs:
     nyc_taxi_pipeline:
       name: "[${bundle.target}] Pipeline Medallion NYC Taxi"
-      
       
       job_clusters:
         - job_cluster_key: "etl_cluster"
@@ -29,24 +27,21 @@ resources:
             data_security_mode: "SINGLE_USER"
 
       tasks:
-        - task_key: "00_download_source_data"
-          job_cluster_key: "etl_cluster"
-          spark_python_task:
-            python_file: "src/pipelines/00_download_data.py"
-
         - task_key: "01_raw_ingestion"
-          depends_on:
-            - task_key: "00_download_source_data" 
           job_cluster_key: "etl_cluster"
           spark_python_task:
             python_file: "src/pipelines/01_raw_ingestion.py"
-            
+            parameters: ["--catalog", "${var.catalog_name}"]
+          max_retries: 2 
+          min_retry_interval_millis: 60000
+
         - task_key: "02_trusted_processing"
           depends_on:
             - task_key: "01_raw_ingestion"
           job_cluster_key: "etl_cluster"
           spark_python_task:
             python_file: "src/pipelines/02_trusted_processing.py"
+            parameters: ["--catalog", "${var.catalog_name}"]
 
         - task_key: "03_refined"
           depends_on:
@@ -54,8 +49,8 @@ resources:
           job_cluster_key: "etl_cluster"
           spark_python_task:
             python_file: "src/pipelines/03_refined.py"
+            parameters: ["--catalog", "${var.catalog_name}"]
 
-      # Permisos para que otros puedan ver
       permissions:
         - level: CAN_VIEW
           group_name: "users"
@@ -73,4 +68,3 @@ targets:
       host: https://adb-7405609969491054.14.azuredatabricks.net
     variables:
       catalog_name: nyc_taxi_ivangalindo_prod
-    
