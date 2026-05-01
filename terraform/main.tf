@@ -1,34 +1,24 @@
-terraform {
-  required_providers {
-    azurerm = {
-      source  = "hashicorp/azurerm"
-      version = "~> 3.0"
-    }
-  }
-}
-
-provider "azurerm" {
-  features {}
-}
-
-# 1. Crear Grupo de Recursos
+# 1. Crear el Grupo de Recursos en Azure
 resource "azurerm_resource_group" "rg" {
-  name     = "rg-${var.project_name}-dev"
+  name     = var.resource_group_name
   location = var.location
-  
-  tags = {
-    Environment = "Dev"
-    Project     = "Prueba Técnica Databricks"
-  }
 }
 
-# 2. Crear Workspace de Databricks
+# 2. Crear el Workspace de Databricks
 resource "azurerm_databricks_workspace" "workspace" {
-  name                        = "dbw-${var.project_name}-dev"
+  name                        = var.workspace_name
   resource_group_name         = azurerm_resource_group.rg.name
   location                    = azurerm_resource_group.rg.location
-  sku                         = "premium" 
-  managed_resource_group_name = "rg-${var.project_name}-dev-managed"
-  
-  tags = azurerm_resource_group.rg.tags
+  sku                         = "premium" # Obligatorio para Unity Catalog
+  managed_resource_group_name = "${var.resource_group_name}-managed"
+
+  tags = {
+    Environment = "Dev"
+    Project     = "QUIND_Tech_Test"
+  }
+}
+
+# 3. Mostrar la URL del Workspace al terminar
+output "databricks_workspace_url" {
+  value = "https://${azurerm_databricks_workspace.workspace.workspace_url}"
 }

@@ -1,11 +1,14 @@
-variable "project_name" {
-  description = "Nombre base para los recursos"
-  type        = string
-  default     = "nyctaxi-etl"
+variable "resource_group_name" {
+  type    = string
+  default = "rg-quind-data-test"
 }
 
 variable "location" {
-  description = "Región de Azure donde se desplegará"
-  type        = string
-  default     = "East US" 
+  type    = string
+  default = "East US"
+}
+
+variable "workspace_name" {
+  type    = string
+  default = "dbw-quind-workspace"
 }
