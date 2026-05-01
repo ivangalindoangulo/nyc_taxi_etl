@@ -13,23 +13,10 @@ resources:
   jobs:
     nyc_taxi_pipeline:
       name: "[${bundle.target}] Pipeline Medallion NYC Taxi"
-      
-      job_clusters:
-        - job_cluster_key: "etl_cluster"
-          new_cluster:
-            spark_version: "13.3.x-scala2.12"
-            node_type_id: "Standard_DS3_v2"
-            num_workers: 0 
-            spark_conf:
-              "spark.databricks.cluster.profile": "singleNode"
-              "spark.master": "local[*]"
-            custom_tags:
-              "ResourceClass": "SingleNode"
-            data_security_mode: "SINGLE_USER"
 
       tasks:
         - task_key: "01_raw_ingestion"
-          job_cluster_key: "etl_cluster"
+          existing_cluster_id: "0501-153927-9n9fijz6"
           spark_python_task:
             python_file: "src/pipelines/01_raw_ingestion.py"
             parameters: ["--catalog", "${var.catalog_name}"]
@@ -39,7 +26,7 @@ resources:
         - task_key: "02_trusted_processing"
           depends_on:
             - task_key: "01_raw_ingestion"
-          job_cluster_key: "etl_cluster"
+          existing_cluster_id: "0501-153927-9n9fijz6"
           spark_python_task:
             python_file: "src/pipelines/02_trusted_processing.py"
             parameters: ["--catalog", "${var.catalog_name}"]
@@ -47,7 +34,7 @@ resources:
         - task_key: "03_refined"
           depends_on:
             - task_key: "02_trusted_processing"
-          job_cluster_key: "etl_cluster"
+          existing_cluster_id: "0501-153927-9n9fijz6"
           spark_python_task:
             python_file: "src/pipelines/03_refined.py"
             parameters: ["--catalog", "${var.catalog_name}"]
