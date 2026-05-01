@@ -63,14 +63,33 @@ Este proyecto utiliza **Databricks Asset Bundles (DABs)**  asegurando prácticas
 
 ### 📋 Prerrequisitos
 
-1. **Databricks CLI**: Tener instalada la versión más reciente de la CLI de Databricks (`v0.205.0` o superior).
-2. **Autenticación**: Un *Personal Access Token* (PAT) o autenticación M2M configurada hacia tu Workspace de Azure Databricks.
-3. **Unity Catalog**: Un catálogo habilitado (el proyecto usa el nombre de catálogo definido en el archivo `databricks.yml`).
+1. **Suscripción de Azure**: Cuenta activa con permisos suficientes para administrar recursos de Databricks y Storage Accounts.
+2. **Databricks Workspace**: Un workspace configurado con **Unity Catalog** habilitado en la región correspondiente.
+3. **Databricks CLI**: Instalada la versión `v0.205.0` o superior en tu máquina local.
+4. **Autenticación**: Haber configurado un perfil de autenticación que permita a la CLI interactuar con el Workspace.
 
 ---
 
+### ☁️ Paso 0: Configuración del Storage Account en Azure
+
+Para que Unity Catalog pueda persistir los datos del catálogo `nyc_taxi_ivan`, se requiere un contenedor con capacidades de **Data Lake Storage Gen2**.
+
+1. **Crear Storage Account:**
+   * Crea un recurso de tipo *Storage Account* en el mismo grupo de recursos que tu Workspace de Databricks.
+   * **Importante:** En la pestaña "Advanced", asegúrate de marcar la opción **"Enable hierarchical namespace"**.
+
+2. **Configurar el Contenedor:**
+   * Crea un contenedor llamado `unity-catalog-storage`.
+   * En el menú de **Access Control (IAM)** del Storage Account, asigna a tu usuario o al *Managed Identity* de Databricks el rol de:
+     * **Storage Blob Data Contributor**.
+
+3. **Vincular a Unity Catalog (Opcional si usas catálogos gestionados):**
+   * Si deseas que el catálogo sea externo, asegúrate de tener los permisos de `CREATE EXTERNAL LOCATION` en el Metastore de Databricks para apuntar a la ruta: 
+     `abfss://unity-catalog-storage@<tu_storage_account>.dfs.core.windows.net/`
+
 ### Paso 1: Autenticación
 Autentícate en tu Workspace de Databricks utilizando la CLI:
+
  ```bash
 databricks auth login --host <URL-DE-TU-WORKSPACE-AZURE>
  ```
@@ -109,3 +128,14 @@ databricks bundle run nyc_taxi_pipeline -t dev
 
 ## 🛡️ Gobierno y Calidad de Datos
 Se implementaron validaciones de calidad de datos *(Expectations)* en la capa Trusted para garantizar la integridad de los KPIs. Los registros anómalos (fechas incongruentes, distancias o tarifas en cero) son apartados y contabilizados en la tabla de auditoría `refined.data_quality_report`.
+
+
+## ⚠️ Limitaciones Conocidas (Infraestructura)
+
+El pipeline está diseñado bajo los estándares de **Unity Catalog** y orquestado mediante **Databricks Asset Bundles (DABs)**. No obstante, existen restricciones externas que deben considerarse para la ejecución:
+
+* **Restricciones de Cuota de Azure:** La suscripción *Free Trial* de Azure impone un límite estricto de **4 vCPUs** por región. 
+* **Configuración del Compute:** El archivo `databricks.yml` utiliza un tipo de instancia `Standard_DS3_v2` (4 núcleos). Debido a que Azure reserva parte de la cuota para la gestión de la máquina virtual, existe una alta probabilidad de que el proveedor de nube rechace la creación del clúster por insuficiencia de cores disponibles.
+* **Modo de Acceso:** Para ser compatible con Unity Catalog, el clúster debe estar en modo `SINGLE_USER` pues puede generar errores de despliegue de infraestructura. En entornos de producción con cuotas estándar, esto no representa un problema.
+
+> **Solución recomendada:** En caso de fallo por cuota, se sugiere intentar el despliegue en una región con menor demanda o solicitar un incremento de cuota de la familia de VMs *Standard DSv2* en el portal de Azure.
