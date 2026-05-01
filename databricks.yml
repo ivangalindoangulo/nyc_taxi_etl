@@ -4,7 +4,7 @@ bundle:
 variables:
   catalog_name:
     description: "Catálogo de Unity Catalog"
-    default: "nyc_taxi_ivangalindo"
+    default: "nyc_taxi_ivan"
 
 workspace:
   root_path: /Users/${workspace.current_user.userName}/.bundle/${bundle.name}/${bundle.target}
