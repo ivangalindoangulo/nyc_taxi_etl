@@ -1,7 +1,7 @@
 import sys
 import os
 
-# 1. PRIMERO agregamos la ruta (Antes de importar 'src')
+# Ruta raiz
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '../..')))
 
 # 2. LUEGO hacemos las importaciones

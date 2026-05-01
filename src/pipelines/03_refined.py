@@ -4,6 +4,8 @@ import os
 # Ruta
 sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '../..')))
 
+import json
+import datetime
 import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, hour, date_format, avg, count, unix_timestamp, when
@@ -58,5 +60,49 @@ def calculate_kpis():
     
     logger.info("KPIs guardados en Unity Catalog exitosamente.")
 
+
+def generate_json_report():
+    logger.info("Generando reporte de ejecución final en JSON...")
+    
+    # Extraer métricas consultando las tablas
+    total_raw = spark.table(f"{CATALOG_NAME}.raw.yellow_trips").count()
+    
+    try:
+        df_dq = spark.table(f"{CATALOG_NAME}.refined.data_quality_report")
+        descartados = df_dq.filter(col("is_valid") == False).select("count").collect()[0][0]
+    except Exception:
+        descartados = 0
+        
+    total_procesado = total_raw - descartados
+    
+    # Estructurar el JSON
+    report_data = {
+        "pipeline_name": "nyc_taxi_etl",
+        "execution_timestamp": str(datetime.datetime.now()),
+        "status": "SUCCESS",
+        "metrics": {
+            "1_registros_crudos_leidos": total_raw,
+            "2_registros_anomalos_descartados": descartados,
+            "3_registros_validos_procesados": total_procesado
+        },
+        "kpis_generados": [
+            f"{CATALOG_NAME}.refined.kpi1_demanda_temporal",
+            f"{CATALOG_NAME}.refined.kpi2_top_10_zonas_rentables"
+        ]
+    }
+    
+    # Guardar el JSON en el volumen de Unity Catalog
+    report_path = f"/Volumes/{CATALOG_NAME}/raw/landing/execution_report.json"
+    
+    with open(report_path, "w") as f:
+        json.dump(report_data, f, indent=4)
+        
+    logger.info(f"✅ Reporte JSON guardado exitosamente en: {report_path}")
+    
+    print("\n--- REPORTE FINAL DE EJECUCIÓN ---")
+    print(json.dumps(report_data, indent=4))
+    print("----------------------------------\n")
+
 if __name__ == "__main__":
     calculate_kpis()
+    generate_json_report()
