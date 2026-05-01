@@ -1,13 +1,16 @@
-import argparse
 import sys
 import os
+
+# 1. PRIMERO agregamos la ruta (Antes de importar 'src')
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '../..')))
+
+# 2. LUEGO hacemos las importaciones
+import urllib.request
+import time
+import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, lit, when
-from src.utils.logger import get_logger
-
-# Agregamos la ruta raíz del proyecto al entorno de Python para que reconozca 'src'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
-
+from src.utils.logger import get_logger, ExecutionReport
 
 
 # 1. Inicializar Spark y variables

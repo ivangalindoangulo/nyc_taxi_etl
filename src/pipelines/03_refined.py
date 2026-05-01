@@ -1,12 +1,13 @@
-import argparse
 import sys
 import os
+
+# Ruta
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '../..')))
+
+import argparse
 from pyspark.sql import SparkSession
 from pyspark.sql.functions import col, hour, date_format, avg, count, unix_timestamp, when
 from src.utils.logger import get_logger
-
-# Agregamos la ruta raíz del proyecto al entorno de Python para que reconozca 'src'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 
 

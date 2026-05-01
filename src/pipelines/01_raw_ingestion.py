@@ -1,13 +1,14 @@
-import urllib.request
 import sys
 import os
+
+# Ruta
+sys.path.append(os.path.abspath(os.path.join(os.getcwd(), '../..')))
+
+import urllib.request
 import time
 import argparse
 from pyspark.sql import SparkSession
 from src.utils.logger import get_logger, ExecutionReport
-
-# Agregamos la ruta raíz del proyecto al entorno de Python para que reconozca 'src'
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../..')))
 
 
 # 1. Inicialización y captura de variables
