@@ -71,32 +71,40 @@ Este proyecto utiliza **Databricks Asset Bundles (DABs)**  asegurando prácticas
 
 ### Paso 1: Autenticación
 Autentícate en tu Workspace de Databricks utilizando la CLI:
-
+ ```bash
 databricks auth login --host <URL-DE-TU-WORKSPACE-AZURE>
+ ```
 
 ### Paso 2: Clonar el repositorio
 Clona este repositorio en tu entorno local e ingresa a la carpeta del proyecto:
 
-
-`git clone https://github.com/ivangalindoangulo/nyc_taxi_etl.git`
-`cd nyc_taxi_etl`
+ ```bash
+git clone https://github.com/ivangalindoangulo/nyc_taxi_etl.git
+cd nyc_taxi_etl
+ ```
 
 ### Paso 3: Validación del Bundle
 Verifica que la configuración de la infraestructura sea válida sintácticamente:
 
-`databricks bundle validate`
+ ```bash
+databricks bundle validate
+ ```
 
 Nota: El archivo databricks.yml está configurado para utilizar un clúster Single Node (num_workers: 0) para optimizar costos de cómputo en la nube.
 
 ### Paso 4: Despliegue (Deploy)
 Sincroniza el código local y las configuraciones del Job hacia el entorno de desarrollo (dev) en Databricks:
 
-`databricks bundle deploy -t dev`
+ ```bash
+databricks bundle deploy -t dev
+ ```
 
 ### Paso 5: Ejecución del Pipeline (Run)
 Lanza la orquestación del pipeline completo. Esto encenderá el clúster, ejecutará secuencialmente las tareas 01_raw_ingestion, 02_trusted_processing y 03_refined, y finalmente apagará el clúster.
 
-`databricks bundle run nyc_taxi_pipeline -t dev`
+ ```bash
+databricks bundle run nyc_taxi_pipeline -t dev
+ ```
 
 
 ## 🛡️ Gobierno y Calidad de Datos
